@@ -15,3 +15,5 @@ dist
 *.md
 
 config
+.firebaserc
+firebase.json
