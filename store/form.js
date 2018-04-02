@@ -62,7 +62,26 @@ export const mutations = {
     updateFieldItems: (state, payload) => {
         state.in_form.form_name = payload.form_name
         state.in_form.fields = payload.fields
-    }
+    },
+
+    init_list: (state, payload) => {
+        Vue.set(state.in_form.fields[payload], 'list_items', [{
+            id: 0,
+            list_item_value: ''
+        }]);
+    },
+
+    remove_list: (state, payload) => {
+        Vue.delete(state.in_form.fields[payload], 'list_items');
+    },
+
+    addListItem: (state, payload) => {
+        console.log(payload)
+        Vue.set(state.in_form.fields[payload.parent_ind].list_items, payload.next_ind, {
+            id: payload.next_ind,
+            list_item_value: ''
+        });
+    },
 }
 
 export const actions = {
@@ -89,14 +108,14 @@ export const actions = {
 
     editListItem: ({ commit }, payload) => {
         return new Promise((resolve, reject) => {
-            let set_update = (payload !== null) ? payload.key: null
-            if(set_update !== null) {
+            let set_update = (payload !== null) ? payload.key : null
+            if (set_update !== null) {
                 commit('updateListItem', set_update)
                 commit('updateFieldItems', payload.form_data)
-            }else{
+            } else {
                 commit('reset_form')
             }
-            
+
             resolve()
         })
     },
@@ -104,7 +123,7 @@ export const actions = {
     save_form: ({ commit, state }) => {
         let data = state.in_form
         data['uid'] = auth.currentUser.uid
-        let push_ref = (!state.update) ? DB.ref('forms').push(): DB.ref('forms').child(state.update)
+        let push_ref = (!state.update) ? DB.ref('forms').push() : DB.ref('forms').child(state.update)
         push_ref
             .set(data, (err, res) => {
                 if (err) {
